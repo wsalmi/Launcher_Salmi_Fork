@@ -122,6 +122,7 @@ uint8_t buff[1024] = {0};
 #include "onlineLauncher.h"
 #include "partitioner.h"
 #include "sd_functions.h"
+#include "serialCommands.h"
 #include "settings.h"
 #include "webInterface.h"
 
@@ -259,6 +260,15 @@ void setup() {
     }
 #endif
     Serial.begin(115200);
+    delay(100);
+
+    // Welcome message with serial commands info
+    Serial.println("\n\n");
+    Serial.println("╔════════════════════════════════════════════════════════════════╗");
+    Serial.println("║                    LAUNCHER - Starting Up                      ║");
+    Serial.println("╚════════════════════════════════════════════════════════════════╝");
+    Serial.println("Serial Commands Available - Type 'help' or '?' for command list");
+    Serial.println("");
 
 // Setup GPIOs and stuff
 #if defined(HEADLESS)
@@ -555,6 +565,9 @@ void loop() {
             returnToMenu = false;
             redraw = true;
         }
+
+        // Process serial commands
+        processSerialCommand();
     }
 }
 

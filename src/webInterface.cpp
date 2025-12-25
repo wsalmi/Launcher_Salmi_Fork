@@ -6,6 +6,7 @@
 #include "mykeyboard.h"
 #include "onlineLauncher.h"
 #include "sd_functions.h"
+#include "serialCommands.h"
 #include "settings.h"
 #include <globals.h>
 #include <map>
@@ -645,6 +646,7 @@ void startWebUi(String ssid, int encryptation, bool mode_ap) {
 #endif
 
     while (!check(SelPress)) {
+        processSerialCommand();
         if (shouldReboot) {
             FREE_TFT
 #if CONFIG_IDF_TARGET_ESP32P4
@@ -710,6 +712,9 @@ void startWebUi(String ssid, int encryptation, bool mode_ap) {
     Serial.println(txt);
     Serial.println("Usr: " + String(wui_usr));
     Serial.println("Pwd: " + String(wui_pwd));
+    Serial.println("\n╔════════════════════════════════════════════════════════════════╗");
+    Serial.println("║        Serial Commands Available - Type 'help' for list       ║");
+    Serial.println("╚════════════════════════════════════════════════════════════════╝\n");
 
     while (1) {
         if (shouldReboot) {
@@ -724,6 +729,10 @@ void startWebUi(String ssid, int encryptation, bool mode_ap) {
             fileToCopy = "";
             Serial.println("\n\n--------------------\nRestart your Device");
         }
+
+        // Process serial commands in HEADLESS mode
+        processSerialCommand();
+        delay(10);
     }
 
     log_i("Closing Server and turning off WiFi, something went wrong?");

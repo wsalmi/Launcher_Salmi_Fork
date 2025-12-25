@@ -67,6 +67,50 @@ Join our [Discord community](https://discord.gg/BE9by2a2FF)
 </details>
 
 <details>
+  <summary><h3>🔌 Serial Commands - Remote Control</h3></summary>
+
+**NEW!** Control the Launcher via Serial Monitor without touching the device!
+
+Essential commands are available through serial at 115200 baud. Perfect for:
+- **WiFi Configuration** without keyboard or SD card
+- **Headless** devices setup
+- **Remote** WebUI access
+- **Debugging** and testing
+
+**Quick Start:**
+```
+> help                          # Show all available commands
+> wifi scan                     # List available networks
+> wifi MyNetwork MyPassword     # Connect to WiFi
+> wifi status                   # Check connection status
+> webui                         # Get WebUI URL
+> brightness 50                 # Set screen brightness
+> status                        # Display system information
+> restart                       # Reboot device
+```
+
+**Available Commands:**
+- **WiFi Management:**
+  - `wifi scan` - List available networks with signal strength (RSSI)
+  - `wifi <ssid> <password>` - Connect to WiFi network
+  - `wifi status` - Show current WiFi connection status
+- **WebUI Access:**
+  - `webui` - Display WebUI access URL (requires WiFi connection)
+- **System:**
+  - `status` - Show chip model, frequency, memory, flash info
+  - `brightness [1-100]` - Get or set screen brightness
+  - `restart` - Reboot device
+- **Help:**
+  - `help` or `?` - Show command list
+
+**Notes:**
+- Commands work without newline character (300ms idle timeout)
+- Baud rate: 115200, 8-N-1
+- Optimized for WiFi/WebUI configuration on headless devices
+
+</details>
+
+<details>
   <summary><h3>Tips</h3></summary>
 * Having an SD card is good for better experience, but not really needed. [SDCard Hat for M5StickCs](https://www.thingiverse.com/thing:6459069)
 * You can learn more about how it works o [Launcher Wiki](https://github.com/bmorcelli/Launcher/wiki/Explaining-the-project).
@@ -84,6 +128,11 @@ Things that needs to be done in next updates
 
 
 ## Latest Changelog
+* 2.6.6 (Contribution by @WSalmi):
+     * [x] Added Serial Commands for WiFi configuration and WebUI access
+     * [x] Essential commands for headless devices (no keyboard/SD card required)
+     * [x] Commands available: `help`, `wifi scan`, `wifi <ssid> <password>`, `wifi status`, `webui`, `brightness`, `status`, `restart`
+
 * 2.6.5:
      * [x] Added possibility to order by "Latest update"
      * [x] Port to OpenSourceSRDLabs [WaveSentry and WaveSentry Pro ](https://opensourcesdrlab.com/products/aifw-wavesentry-esp32?VariantsId=10331)
