@@ -115,6 +115,7 @@
     },
     "files.trimTrailingWhitespace": true,
     "files.insertFinalNewline": true,
+    "python.defaultInterpreterPath": "/usr/bin/python3",
 
     "githubPullRequests.ignoredPullRequestBranches": [
         "main"
