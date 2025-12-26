@@ -6,3 +6,4 @@ checksum.sha256
 build
 node_modules
 
+releases/
