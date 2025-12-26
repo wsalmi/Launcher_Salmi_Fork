@@ -124,7 +124,15 @@ Essential commands are available through serial at 115200 baud. Perfect for:
 ## To-Do list
 Things that needs to be done in next updates
      * [ ] LVGL for e-paper displays
-     * [ ] Move to ESP-IDF Platform
+     * [x] Move to ESP-IDF Platform (In Progress - v2.7.x)
+          * [x] Created ESP-IDF compatibility layer (components/esp_idf_compat/)
+          * [x] Migrated serialCommands to pure ESP-IDF as proof-of-concept
+          * [x] Set up hybrid Arduino/ESP-IDF build system
+          * [x] Documentation: [ESP_IDF_MIGRATION.md](ESP_IDF_MIGRATION.md)
+          * [ ] Phase 1: Migrate isolated components (partitioner, settings, powerSave)
+          * [ ] Phase 2: Migrate networking (WiFi, webInterface)
+          * [ ] Phase 3: Migrate core modules (main, keyboard, massStorage)
+          * [ ] Phase 4: Migrate display system (v3.0.0 target)
 
 
 ## Latest Changelog
