@@ -3,17 +3,15 @@
  */
 
 #include "serial_compat.h"
-#include <cstdio>
-#include <cstring>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include <cstdio>
+#include <cstring>
 
 // Global instance
 SerialCompat Serial(UART_NUM_0);
 
-SerialCompat::SerialCompat(uart_port_t port) : uart_num(port) {
-    memset(rx_buffer, 0, sizeof(rx_buffer));
-}
+SerialCompat::SerialCompat(uart_port_t port) : uart_num(port) { memset(rx_buffer, 0, sizeof(rx_buffer)); }
 
 void SerialCompat::begin(uint32_t baud, uint32_t config) {
     uart_config_t uart_config = {
@@ -25,23 +23,20 @@ void SerialCompat::begin(uint32_t baud, uint32_t config) {
         .rx_flow_ctrl_thresh = 122,
         .source_clk = UART_SCLK_DEFAULT,
     };
-    
+
     ESP_ERROR_CHECK(uart_param_config(uart_num, &uart_config));
-    ESP_ERROR_CHECK(uart_set_pin(uart_num, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, 
-                                  UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
+    ESP_ERROR_CHECK(
+        uart_set_pin(uart_num, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE)
+    );
     ESP_ERROR_CHECK(uart_driver_install(uart_num, 1024, 0, 0, NULL, 0));
 }
 
-void SerialCompat::end() {
-    uart_driver_delete(uart_num);
-}
+void SerialCompat::end() { uart_driver_delete(uart_num); }
 
-size_t SerialCompat::print(const char* str) {
-    return write((const uint8_t*)str, strlen(str));
-}
+size_t SerialCompat::print(const char *str) { return write((const uint8_t *)str, strlen(str)); }
 
-size_t SerialCompat::print(const std::string& str) {
-    return write((const uint8_t*)str.c_str(), str.length());
+size_t SerialCompat::print(const std::string &str) {
+    return write((const uint8_t *)str.c_str(), str.length());
 }
 
 size_t SerialCompat::print(int num) {
@@ -62,12 +57,12 @@ size_t SerialCompat::print(float num, int digits) {
     return print(buf);
 }
 
-size_t SerialCompat::println(const char* str) {
+size_t SerialCompat::println(const char *str) {
     size_t n = print(str);
     return n + print("\r\n");
 }
 
-size_t SerialCompat::println(const std::string& str) {
+size_t SerialCompat::println(const std::string &str) {
     size_t n = print(str);
     return n + print("\r\n");
 }
@@ -87,11 +82,9 @@ size_t SerialCompat::println(float num, int digits) {
     return n + print("\r\n");
 }
 
-size_t SerialCompat::write(uint8_t byte) {
-    return uart_write_bytes(uart_num, &byte, 1);
-}
+size_t SerialCompat::write(uint8_t byte) { return uart_write_bytes(uart_num, &byte, 1); }
 
-size_t SerialCompat::write(const uint8_t* buffer, size_t size) {
+size_t SerialCompat::write(const uint8_t *buffer, size_t size) {
     return uart_write_bytes(uart_num, buffer, size);
 }
 
@@ -113,18 +106,16 @@ int SerialCompat::peek() {
     return -1;
 }
 
-void SerialCompat::flush() {
-    uart_wait_tx_done(uart_num, portMAX_DELAY);
-}
+void SerialCompat::flush() { uart_wait_tx_done(uart_num, portMAX_DELAY); }
 
 std::string SerialCompat::readStringUntil(char terminator, uint32_t timeout_ms) {
     std::string result;
     uint32_t start = xTaskGetTickCount() * portTICK_PERIOD_MS;
-    
+
     while (true) {
         uint32_t elapsed = (xTaskGetTickCount() * portTICK_PERIOD_MS) - start;
         if (elapsed >= timeout_ms) break;
-        
+
         if (available() > 0) {
             int c = read();
             if (c == terminator || c == '\n' || c == '\r') break;
@@ -134,6 +125,6 @@ std::string SerialCompat::readStringUntil(char terminator, uint32_t timeout_ms) 
             vTaskDelay(pdMS_TO_TICKS(10));
         }
     }
-    
+
     return result;
 }

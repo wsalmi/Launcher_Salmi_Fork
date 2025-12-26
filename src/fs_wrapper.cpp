@@ -29,5 +29,4 @@ File open(const String &path, const char *mode) { return open(path.c_str(), mode
 
 File open(const String &path, const char *mode, bool create) { return open(path.c_str(), mode, create); }
 
-
 } // namespace fswrap

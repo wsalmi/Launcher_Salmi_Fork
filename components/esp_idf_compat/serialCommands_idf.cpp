@@ -3,31 +3,29 @@
  */
 
 #include "serialCommands_idf.h"
-#include "serial_compat.h"
-#include "wifi_compat.h"
 #include "esp_log.h"
 #include "esp_system.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include <sstream>
+#include "serial_compat.h"
+#include "wifi_compat.h"
 #include <algorithm>
+#include <sstream>
 
-static const char* TAG = "SerialCmd";
+static const char *TAG = "SerialCmd";
 
 static std::string commandBuffer = "";
 static uint32_t lastCharMillis = 0;
 
 // Extern references to Arduino components (temporary during migration)
-extern int bright;  // From globals.h
-extern void setBrightness(int value);  // From display.h
+extern int bright;                    // From globals.h
+extern void setBrightness(int value); // From display.h
 
 // Helper: Convert string to lowercase
-static void toLower(std::string& str) {
-    std::transform(str.begin(), str.end(), str.begin(), ::tolower);
-}
+static void toLower(std::string &str) { std::transform(str.begin(), str.end(), str.begin(), ::tolower); }
 
 // Helper: Trim whitespace
-static void trim(std::string& str) {
+static void trim(std::string &str) {
     size_t start = str.find_first_not_of(" \t\r\n");
     if (start == std::string::npos) {
         str.clear();
@@ -38,7 +36,7 @@ static void trim(std::string& str) {
 }
 
 // Helper: Split command and arguments
-static void splitCommand(const std::string& line, std::string& cmd, std::string& args) {
+static void splitCommand(const std::string &line, std::string &cmd, std::string &args) {
     size_t spacePos = line.find(' ');
     if (spacePos != std::string::npos) {
         cmd = line.substr(0, spacePos);
@@ -88,12 +86,10 @@ void processSerialCommand_IDF() {
         if (c < 0) break;
 
         char ch = (char)c;
-        
+
         // Ignore control characters except \n, \r, backspace
-        if (ch < 32 && ch != '\n' && ch != '\r' && ch != 8) {
-            continue;
-        }
-        
+        if (ch < 32 && ch != '\n' && ch != '\r' && ch != 8) { continue; }
+
         lastCharMillis = xTaskGetTickCount() * portTICK_PERIOD_MS;
 
         if (ch == '\n' || ch == '\r') {
@@ -101,10 +97,8 @@ void processSerialCommand_IDF() {
                 handleSerialLine(commandBuffer);
                 commandBuffer.clear();
             }
-        } else if (ch == 8 || ch == 127) {  // Backspace or DEL
-            if (!commandBuffer.empty()) {
-                commandBuffer.pop_back();
-            }
+        } else if (ch == 8 || ch == 127) { // Backspace or DEL
+            if (!commandBuffer.empty()) { commandBuffer.pop_back(); }
         } else if ((uint8_t)ch >= 32 && (uint8_t)ch <= 126) {
             // Append printable ASCII only
             commandBuffer += ch;
@@ -148,7 +142,7 @@ void cmd_help_IDF() {
     Serial.println("╚════════════════════════════════════════╝\n");
 }
 
-void cmd_wifi_IDF(const std::string& args) {
+void cmd_wifi_IDF(const std::string &args) {
     if (args.empty()) {
         Serial.println("Usage: wifi <ssid> <password>");
         Serial.println("       wifi scan");
@@ -235,7 +229,7 @@ void cmd_webui_IDF() {
     }
 }
 
-void cmd_brightness_IDF(const std::string& args) {
+void cmd_brightness_IDF(const std::string &args) {
     if (!args.empty()) {
         int val = std::stoi(args);
         if (val >= 1 && val <= 100) {
@@ -263,9 +257,9 @@ void cmd_restart_IDF() {
 void cmd_status_IDF() {
     esp_chip_info_t chip_info;
     esp_chip_info(&chip_info);
-    
+
     Serial.println("\n═════════════════════════════════════");
-    
+
     // Chip model
     Serial.print("Chip: ");
     if (chip_info.model == CHIP_ESP32) {
@@ -279,18 +273,18 @@ void cmd_status_IDF() {
     } else {
         Serial.print("Unknown");
     }
-    
+
     Serial.print(" (");
     Serial.print(esp_clk_cpu_freq() / 1000000);
     Serial.println(" MHz)");
-    
+
     // Memory info
     Serial.print("Heap: ");
     Serial.print(esp_get_free_heap_size() / 1024);
     Serial.print(" KB | Flash: ");
     Serial.print(chip_info.flash_size_mbytes);
     Serial.println(" MB");
-    
+
     // Brightness
     Serial.print("Brightness: ");
     Serial.println(bright);
@@ -306,6 +300,6 @@ void cmd_status_IDF() {
     } else {
         Serial.println("WiFi: Not connected");
     }
-    
+
     Serial.println("═════════════════════════════════════\n");
 }

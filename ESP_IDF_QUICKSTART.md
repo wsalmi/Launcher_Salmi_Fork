@@ -197,7 +197,7 @@ See detailed documentation or ask in Discord #launcher channel.
 
 ---
 
-**Status**: Proof-of-concept complete, ready for validation  
-**Version**: v2.7.0-dev  
-**Date**: December 26, 2025  
+**Status**: Proof-of-concept complete, ready for validation
+**Version**: v2.7.0-dev
+**Date**: December 26, 2025
 **Developer**: @WSalmi

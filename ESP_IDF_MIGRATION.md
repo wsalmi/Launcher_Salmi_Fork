@@ -326,7 +326,7 @@ The serialCommands proof-of-concept demonstrates feasibility and provides a temp
 
 ---
 
-**Version**: 1.0  
-**Date**: December 26, 2025  
-**Status**: Phase 1 - serialCommands proof-of-concept complete  
+**Version**: 1.0
+**Date**: December 26, 2025
+**Status**: Phase 1 - serialCommands proof-of-concept complete
 **Next Review**: After v2.7.0 release
