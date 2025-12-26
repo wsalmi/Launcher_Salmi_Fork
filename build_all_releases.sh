@@ -23,7 +23,7 @@ NC='\033[0m' # No Color
 ENVIRONMENTS=(
     # Arduino
     "arduino-nesso-n1"
-    
+
     # CYD (Cheap Yellow Display)
     "CYD-2432S028"
     "CYD-2-USB"
@@ -40,20 +40,20 @@ ENVIRONMENTS=(
     "CYD-8048W550C"
     "CYD-3248W535C"
     "CYD-4827S043R"
-    
+
     # Headless
     "headless-esp32-4mb"
     "headless-esp32-8mb"
     "headless-esp32s3-4mb"
     "headless-esp32s3-8mb"
     "headless-esp32s3-16mb"
-    
+
     # Elecrow
     "elecrow-24B"
     "elecrow-28B"
     "elecrow-35B"
     "elecrow-35Bv2_2"
-    
+
     # Lilygo
     "lilygo-t-deck-pro"
     "lilygo-t-deck"
@@ -66,7 +66,7 @@ ENVIRONMENTS=(
     "lilygo-t-lora-pager"
     "lilygo-t5-epaper-s3-pro"
     "lilygo-t-hmi"
-    
+
     # M5Stack
     "m5stack-cardputer"
     "m5stack-core"
@@ -79,7 +79,7 @@ ENVIRONMENTS=(
     "m5stack-tab5"
     "m5stack-paper"
     "m5stack-paper-s3"
-    
+
     # Marauder & Others
     "Marauder-Mini"
     "Marauder-v7"
@@ -104,9 +104,9 @@ build_env() {
     local env=$1
     local num=$2
     local total=$3
-    
+
     printf "\n[%d/%d] Building %s...\n" "$num" "$total" "$env"
-    
+
     if "${PIO_PATH}" run -e "${env}"; then
         if [ -f "${BUILD_DIR}/${env}/firmware.bin" ]; then
             local size=$(du -h "${BUILD_DIR}/${env}/firmware.bin" | cut -f1)
@@ -128,18 +128,18 @@ create_zip() {
     local firmware="${BUILD_DIR}/${env}/firmware.bin"
     local zip_name="Launcher-${VERSION}-${env}.zip"
     local zip_path="${RELEASE_DIR}/${zip_name}"
-    
+
     if [ ! -f "${firmware}" ]; then
         return 1
     fi
-    
+
     # Copy firmware with proper name
     local firmware_name="Launcher-${VERSION}-${env}.bin"
     cp "${firmware}" "${RELEASE_DIR}/${firmware_name}"
-    
+
     # Create ZIP
     (cd "${RELEASE_DIR}" && zip -q "${zip_name}" "${firmware_name}" && rm "${firmware_name}")
-    
+
     if [ -f "${zip_path}" ]; then
         local size=$(du -h "${zip_path}" | cut -f1)
         printf "📦 Created %s (%s)\n" "$zip_name" "$size"
@@ -153,24 +153,24 @@ create_zip() {
 # Main
 main() {
     print_header "Launcher v${VERSION} - Build All Releases"
-    
+
     # Create release directory
     mkdir -p "${RELEASE_DIR}"
     printf "📁 Release directory: %s\n\n" "$RELEASE_DIR"
-    
+
     # Track results
     local successful=0
     local failed=0
     local total=${#ENVIRONMENTS[@]}
     declare -a failed_envs
-    
+
     print_header "Building ${total} environments"
-    
+
     # Build all environments
     for i in "${!ENVIRONMENTS[@]}"; do
         local env="${ENVIRONMENTS[$i]}"
         local num=$((i + 1))
-        
+
         if build_env "${env}" "${num}" "${total}"; then
             create_zip "${env}"
             ((successful++))
@@ -180,13 +180,13 @@ main() {
         fi
         echo ""
     done
-    
+
     # Create All.zip
     if [ ${successful} -gt 0 ]; then
         print_header "Creating All.zip with ${successful} firmwares"
-        
+
         rm -f "${ALL_ZIP}"
-        
+
         # Add all firmware files to All.zip
         for env in "${ENVIRONMENTS[@]}"; do
             local firmware="${BUILD_DIR}/${env}/firmware.bin"
@@ -196,28 +196,28 @@ main() {
                 (cd "${RELEASE_DIR}" && zip -q "$(basename "${ALL_ZIP}")" "${firmware_name}" && rm "${firmware_name}")
             fi
         done
-        
+
         if [ -f "${ALL_ZIP}" ]; then
             local size=$(du -h "${ALL_ZIP}" | cut -f1)
             printf "✅ Created All.zip (%s)\n" "$size"
             printf "   Location: %s\n" "$ALL_ZIP"
         fi
     fi
-    
+
     # Summary
     print_header "Build Summary"
     printf "✅ Successful: %d/%d\n" "$successful" "$total"
     printf "❌ Failed: %d\n" "$failed"
-    
+
     if [ ${#failed_envs[@]} -gt 0 ]; then
         printf "\nFailed builds:\n"
         for env in "${failed_envs[@]}"; do
             printf "  - %s\n" "$env"
         done
     fi
-    
+
     printf "\n📁 All releases available at: %s\n\n" "$RELEASE_DIR"
-    
+
     return $failed
 }
 

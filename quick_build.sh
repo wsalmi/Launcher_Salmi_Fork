@@ -20,7 +20,7 @@ for env in "${ENVS[@]}"; do
     echo ""
     echo "Building $env..."
     "$PIO" run -e "$env"
-    
+
     if [ -f ".pio/build/$env/firmware.bin" ]; then
         echo "✅ $env successful"
     else

@@ -6,11 +6,11 @@ Author: WSalmi
 """
 
 import os
-import subprocess
 import shutil
+import subprocess
+import sys
 import zipfile
 from pathlib import Path
-import sys
 
 # Configuration
 VERSION = "2.6.6"
@@ -24,7 +24,7 @@ ALL_ZIP = RELEASE_DIR / f"Launcher-{VERSION}-All.zip"
 ENVIRONMENTS = [
     # Arduino
     "arduino-nesso-n1",
-    
+
     # CYD (Cheap Yellow Display)
     "CYD-2432S028",
     "CYD-2-USB",
@@ -41,20 +41,20 @@ ENVIRONMENTS = [
     "CYD-8048W550C",
     "CYD-3248W535C",
     "CYD-4827S043R",
-    
+
     # Headless
     "headless-esp32-4mb",
     "headless-esp32-8mb",
     "headless-esp32s3-4mb",
     "headless-esp32s3-8mb",
     "headless-esp32s3-16mb",
-    
+
     # Elecrow
     "elecrow-24B",
     "elecrow-28B",
     "elecrow-35B",
     "elecrow-35Bv2_2",
-    
+
     # Lilygo
     "lilygo-t-deck-pro",
     "lilygo-t-deck",
@@ -67,7 +67,7 @@ ENVIRONMENTS = [
     "lilygo-t-lora-pager",
     "lilygo-t5-epaper-s3-pro",
     "lilygo-t-hmi",
-    
+
     # M5Stack
     "m5stack-cardputer",
     "m5stack-core",
@@ -80,7 +80,7 @@ ENVIRONMENTS = [
     "m5stack-tab5",
     "m5stack-paper",
     "m5stack-paper-s3",
-    
+
     # Marauder & Others
     "Marauder-Mini",
     "Marauder-v7",
@@ -104,7 +104,7 @@ def print_header(text):
 def build_environment(env_name):
     """Build a specific environment"""
     print(f"📦 Building {env_name}...")
-    
+
     try:
         result = subprocess.run(
             [PIO_PATH, "run", "-e", env_name],
@@ -113,7 +113,7 @@ def build_environment(env_name):
             text=True,
             check=True
         )
-        
+
         # Check if firmware.bin exists
         firmware_path = BUILD_DIR / env_name / "firmware.bin"
         if firmware_path.exists():
@@ -122,7 +122,7 @@ def build_environment(env_name):
         else:
             print(f"⚠️  {env_name} built but firmware.bin not found")
             return False
-            
+
     except subprocess.CalledProcessError as e:
         print(f"❌ {env_name} failed to build")
         print(f"   Error: {e.stderr[:200] if e.stderr else 'Unknown error'}")
@@ -135,18 +135,18 @@ def build_environment(env_name):
 def create_individual_zip(env_name):
     """Create a ZIP file for a specific environment"""
     firmware_path = BUILD_DIR / env_name / "firmware.bin"
-    
+
     if not firmware_path.exists():
         return None
-    
+
     # Create ZIP for this environment
     zip_name = f"Launcher-{VERSION}-{env_name}.zip"
     zip_path = RELEASE_DIR / zip_name
-    
+
     try:
         with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
             zipf.write(firmware_path, f"Launcher-{VERSION}-{env_name}.bin")
-        
+
         print(f"📦 Created {zip_name} ({zip_path.stat().st_size:,} bytes)")
         return zip_path
     except Exception as e:
@@ -157,14 +157,14 @@ def create_individual_zip(env_name):
 def create_all_zip(individual_zips):
     """Create All.zip containing all individual firmware files"""
     print_header(f"Creating All.zip with {len(individual_zips)} firmwares")
-    
+
     try:
         with zipfile.ZipFile(ALL_ZIP, 'w', zipfile.ZIP_DEFLATED) as zipf:
             for env_name in individual_zips:
                 firmware_path = BUILD_DIR / env_name / "firmware.bin"
                 if firmware_path.exists():
                     zipf.write(firmware_path, f"Launcher-{VERSION}-{env_name}.bin")
-        
+
         print(f"✅ Created All.zip ({ALL_ZIP.stat().st_size:,} bytes)")
         print(f"   Location: {ALL_ZIP}")
         return True
@@ -176,49 +176,49 @@ def create_all_zip(individual_zips):
 def main():
     """Main build process"""
     print_header(f"Launcher v{VERSION} - Build All Releases")
-    
+
     # Create release directory
     RELEASE_DIR.mkdir(parents=True, exist_ok=True)
     print(f"📁 Release directory: {RELEASE_DIR}\n")
-    
+
     # Track results
     successful_builds = []
     failed_builds = []
     individual_zips = []
-    
+
     # Build all environments
     print_header(f"Building {len(ENVIRONMENTS)} environments")
-    
+
     for i, env in enumerate(ENVIRONMENTS, 1):
         print(f"\n[{i}/{len(ENVIRONMENTS)}] ", end="")
-        
+
         if build_environment(env):
             successful_builds.append(env)
-            
+
             # Create individual ZIP
             zip_path = create_individual_zip(env)
             if zip_path:
                 individual_zips.append(env)
         else:
             failed_builds.append(env)
-    
+
     # Create All.zip
     if individual_zips:
         create_all_zip(individual_zips)
-    
+
     # Summary
     print_header("Build Summary")
     print(f"✅ Successful: {len(successful_builds)}/{len(ENVIRONMENTS)}")
     print(f"📦 ZIPs created: {len(individual_zips)}")
     print(f"❌ Failed: {len(failed_builds)}")
-    
+
     if failed_builds:
         print("\nFailed builds:")
         for env in failed_builds:
             print(f"  - {env}")
-    
+
     print(f"\n📁 All releases available at: {RELEASE_DIR}")
-    
+
     # Return exit code
     return 0 if not failed_builds else 1
 
